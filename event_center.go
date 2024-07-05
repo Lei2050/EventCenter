@@ -100,11 +100,15 @@ func (ec EventCenter[T]) Fire(event T) {
 	}
 }
 
-type centerMgr struct {
+type EventCenterMgr struct {
 	centers map[reflect.Type]any
 }
 
-var gCenterMgr = centerMgr{centers: make(map[reflect.Type]any)}
+func NewEventCenterMgr() *EventCenterMgr {
+	return &EventCenterMgr{centers: make(map[reflect.Type]any)}
+}
+
+var gCenterMgr = NewEventCenterMgr()
 
 func GetOrCreateEventCenter[T IEvent]() *EventCenter[T] {
 	t := reflect.TypeOf(*new(T))
