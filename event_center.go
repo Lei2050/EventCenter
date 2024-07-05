@@ -101,38 +101,38 @@ func (ec EventCenter[T]) Fire(event T) {
 }
 
 type centerMgr struct {
-	centers map[string]any
+	centers map[reflect.Type]any
 }
 
-var gCenterMgr = centerMgr{centers: make(map[string]any)}
+var gCenterMgr = centerMgr{centers: make(map[reflect.Type]any)}
 
-func GetOrCreateEventCenter[T IEvent](centerName string) *EventCenter[T] {
-	c, exists := gCenterMgr.centers[centerName]
+func GetOrCreateEventCenter[T IEvent]() *EventCenter[T] {
+	t := reflect.TypeOf(*new(T))
+	c, exists := gCenterMgr.centers[t]
 	if exists {
 		return c.(*EventCenter[T])
 	}
 	center := &EventCenter[T]{}
-	gCenterMgr.centers[centerName] = center
+	gCenterMgr.centers[t] = center
 	return center
 }
 
-func On[T IEvent](centerName string, handler EventHandler[T]) *EventCenter[T] {
-	return GetOrCreateEventCenter[T](centerName).On(handler)
+func On[T IEvent](handler EventHandler[T]) *EventCenter[T] {
+	return GetOrCreateEventCenter[T]().On(handler)
 }
 
-func Off[T IEvent](centerName string, handler EventHandler[T]) *EventCenter[T] {
-	return GetOrCreateEventCenter[T](centerName).Off(handler)
+func Off[T IEvent](handler EventHandler[T]) *EventCenter[T] {
+	return GetOrCreateEventCenter[T]().Off(handler)
 }
 
-func OnMonitor[T IEvent](centerName string, handler EventHandler[T], checkCost time.Duration, callback func(event T, elapse time.Duration)) *EventCenter[T] {
-	return GetOrCreateEventCenter[T](centerName).OnMonitor(handler, checkCost, callback)
+func OnMonitor[T IEvent](handler EventHandler[T], checkCost time.Duration, callback func(event T, elapse time.Duration)) *EventCenter[T] {
+	return GetOrCreateEventCenter[T]().OnMonitor(handler, checkCost, callback)
 }
 
-func OffMonitor[T IEvent](centerName string, handler EventHandler[T]) *EventCenter[T] {
-	return GetOrCreateEventCenter[T](centerName).OffMonitor(handler)
+func OffMonitor[T IEvent](handler EventHandler[T]) *EventCenter[T] {
+	return GetOrCreateEventCenter[T]().OffMonitor(handler)
 }
 
-func Fire[T IEvent](centerName string, event T) {
-	// reflect.TypeOf(event).Name()
-	GetOrCreateEventCenter[T](centerName).Fire(event)
+func Fire[T IEvent](event T) {
+	GetOrCreateEventCenter[T]().Fire(event)
 }

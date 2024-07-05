@@ -60,7 +60,7 @@ type WorldCommand struct {
 }
 
 func TestEventCenterMgr(t *testing.T) {
-	On("HelloCommand", func(event HelloCommand) {
+	On(func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Hi\n", event.Uid, event.Ctx)
 	}).On(func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Hello\n", event.Uid, event.Ctx)
@@ -68,39 +68,39 @@ func TestEventCenterMgr(t *testing.T) {
 	offReply := func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Fuck you\n", event.Uid, event.Ctx)
 	}
-	On("HelloCommand", offReply)
-	Fire("HelloCommand", HelloCommand{Uid: 12345, Ctx: "hahaha"})
+	On(offReply)
+	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
 	t.Logf("===========================================\n")
-	Off("HelloCommand", offReply)
-	Fire("HelloCommand", HelloCommand{Uid: 12345, Ctx: "hahaha"})
+	Off(offReply)
+	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
 
 	t.Logf("===========================================\n")
 	offReply2 := func(event WorldCommand) {
 		time.Sleep(time.Second)
 		t.Logf("reply to %d, \"%s\", it's slow\n", event.Uid, event.Ctx)
 	}
-	OnMonitor("WorldCommand", offReply2, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
+	OnMonitor(offReply2, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
 		t.Logf("    warning! cmd:%+v execution time:%d is too long", event, elapse.Milliseconds())
 	})
-	OnMonitor("WorldCommand", func(event WorldCommand) {
+	OnMonitor(func(event WorldCommand) {
 		t.Logf("reply to %d, \"%s\", it's not slow\n", event.Uid, event.Ctx)
 	}, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
 		t.Logf("    warning! cmd:%+v execution time:%d is too long", event, elapse)
 	})
-	Fire("WorldCommand", WorldCommand{Uid: 5555, Ctx: "hohoho"})
+	Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
 
 	t.Logf("===========================================\n")
-	OffMonitor("WorldCommand", offReply2)
-	Fire("WorldCommand", WorldCommand{Uid: 5555, Ctx: "hohoho"})
+	OffMonitor(offReply2)
+	Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
 	t.Logf("===========================================\n")
-	OffMonitor("WorldCommand", offReply2)
-	Fire("WorldCommand", WorldCommand{Uid: 5555, Ctx: "hohoho"})
+	OffMonitor(offReply2)
+	Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
 
 	t.Logf("===========================================\n")
-	Off("WorldCommand", func(event WorldCommand) {})
-	OffMonitor("WorldCommand", func(event WorldCommand) {})
-	Fire("WorldCommand", WorldCommand{Uid: 8888, Ctx: "world"})
+	Off(func(event WorldCommand) {})
+	OffMonitor(func(event WorldCommand) {})
+	Fire(WorldCommand{Uid: 8888, Ctx: "world"})
 
-	Fire("HelloCommand", HelloCommand{Uid: 12345, Ctx: "hahaha"})
-	Fire("WorldCommand", WorldCommand{Uid: 8888, Ctx: "world"})
+	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
+	Fire(WorldCommand{Uid: 8888, Ctx: "world"})
 }
