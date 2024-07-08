@@ -6,12 +6,12 @@
 
 监听指定事件
 ```golang
-  type HelloCommand struct {
-  	Uid uint64
-  	Ctx string
-  }
+	type HelloCommand struct {
+		Uid uint64
+		Ctx string
+	}
 
-  On(func(event HelloCommand) {
+	On(func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Hi\n", event.Uid, event.Ctx)
 	})
 
@@ -33,8 +33,8 @@
 	}
 	On(offReply)
 	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
-  Off(offReply) //取消对HelloCommand的监听
-  Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
+	Off(offReply) //取消对HelloCommand的监听
+	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
 ```
 
 OnMonitor监控响应事件运行时常
@@ -43,7 +43,7 @@ OnMonitor监控响应事件运行时常
 		time.Sleep(time.Second)
 		t.Logf("reply to %d, \"%s\", it's slow\n", event.Uid, event.Ctx)
 	}
-  //指定响应函数如果运行超过50毫秒，则运行指定的回调函数
+	//指定响应函数如果运行超过50毫秒，则运行指定的回调函数
 	OnMonitor(offReply2, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
 		t.Logf("    warning! cmd:%+v execution time:%d is too long", event, elapse.Milliseconds())
 	})
