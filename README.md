@@ -6,21 +6,25 @@
 
 监听指定事件
 ```golang
+	import (
+		"github.com/Lei2050/EventCenter"
+	)
+
 	type HelloCommand struct {
 		Uid uint64
 		Ctx string
 	}
-
-	On(func(event HelloCommand) {
+	
+	EventCenter.On(func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Hi\n", event.Uid, event.Ctx)
 	})
-
-	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"}) //reply to 12345, "hahaha", Hi
+	
+	EventCenter.Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"}) //reply to 12345, "hahaha", Hi
 ```
 
 链式写法
 ```golang
-	On(func(event HelloCommand) {
+	EventCenter.On(func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Hi\n", event.Uid, event.Ctx)
 	}).On(func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", Hello\n", event.Uid, event.Ctx)
@@ -31,10 +35,10 @@
 	offReply := func(event HelloCommand) {
 		t.Logf("reply to %d, \"%s\", going to off\n", event.Uid, event.Ctx)
 	}
-	On(offReply)
-	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
-	Off(offReply) //取消对HelloCommand的监听
-	Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
+	EventCenter.On(offReply)
+	EventCenter.Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
+	EventCenter.Off(offReply) //取消对HelloCommand的监听
+	EventCenter.Fire(HelloCommand{Uid: 12345, Ctx: "hahaha"})
 ```
 
 OnMonitor监控响应事件运行时常
@@ -44,17 +48,17 @@ OnMonitor监控响应事件运行时常
 		t.Logf("reply to %d, \"%s\", it's slow\n", event.Uid, event.Ctx)
 	}
 	//指定响应函数如果运行超过50毫秒，则运行指定的回调函数
-	OnMonitor(offReply2, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
+	EventCenter.OnMonitor(offReply2, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
 		t.Logf("    warning! cmd:%+v execution time:%d is too long", event, elapse.Milliseconds())
 	})
-	OnMonitor(func(event WorldCommand) {
+	EventCenter.OnMonitor(func(event WorldCommand) {
 		t.Logf("reply to %d, \"%s\", it's not slow\n", event.Uid, event.Ctx)
 	}, time.Millisecond*50, func(event WorldCommand, elapse time.Duration) {
 		t.Logf("    warning! cmd:%+v execution time:%d is too long", event, elapse)
 	})
-	Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
+	EventCenter.Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
 
 	t.Logf("===========================================\n")
-	OffMonitor(offReply2)
-	Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
+	EventCenter.OffMonitor(offReply2)
+	EventCenter.Fire(WorldCommand{Uid: 5555, Ctx: "hohoho"})
 ```
