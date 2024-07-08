@@ -111,7 +111,8 @@ func NewEventCenterMgr() *EventCenterMgr {
 var gCenterMgr = NewEventCenterMgr()
 
 func GetOrCreateEventCenter[T IEvent]() *EventCenter[T] {
-	t := reflect.TypeOf(*new(T))
+	var v *T
+	t := reflect.TypeOf(v).Elem()
 	c, exists := gCenterMgr.centers[t]
 	if exists {
 		return c.(*EventCenter[T])
