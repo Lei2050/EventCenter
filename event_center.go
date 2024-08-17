@@ -91,6 +91,11 @@ func (ec EventCenter[T]) Fire(event T) {
 		f(event)
 	}
 	for _, mh := range ec.monitorHandlers {
+		if mh.callback == nil {
+			mh.handler(event)
+			continue
+		}
+
 		st := time.Now().UnixMilli()
 		mh.handler(event)
 		elapse := time.Millisecond * time.Duration(time.Now().UnixMilli()-st)
